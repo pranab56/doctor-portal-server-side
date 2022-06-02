@@ -86,7 +86,7 @@ async function run() {
       if (exists) {
         return res.send({ success: false, body: exists });
       }
-      //    aituku code
+      //    aituku sudu code
       const result = await bookingCollection.insertOne(body);
       res.send({ success: true, result });
     });
