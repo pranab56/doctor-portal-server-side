@@ -176,7 +176,7 @@ async function run() {
     })
 
   } finally {
-    // await client.close()
+    // await client.close() and finally
   }
 }
 run().catch(console.dir);
