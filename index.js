@@ -17,7 +17,7 @@ const client = new MongoClient(uri, {
 });
 
 
-function jwtVeryfied(req,res,next){
+function jwtVerified(req,res,next){
   const authorization=req.headers.authorization;
   if(!authorization){
     return res.status(401).send({message: "UnAuthorization"})
@@ -40,14 +40,27 @@ async function run() {
     const serviceCollection = client.db("doctor-portal").collection("service");
     const bookingCollection = client.db("doctor-portal").collection("data");
     const userCollection = client.db("doctor-portal").collection("users");
+    const doctorCollection = client.db("doctor-portal").collection("doctors");
+
+    const verifyIdAdmin=async(req,res,next)=>{
+      const requester=req.decoded.email;
+      const requestAccount=await userCollection.findOne({email:requester});
+      if(requestAccount.Role === "Admin"){
+        next()
+      }
+      else{
+        res.status(403).send({message : "forbidden"})
+      }
+    }
+
     app.get("/service", async (req, res) => {
       const query = {};
-      const cursor = serviceCollection.find(query);
+      const cursor = serviceCollection.find(query).project({name:1});
       const service = await cursor.toArray();
       res.send(service);
     });
     
-    app.get("/data", jwtVeryfied, async (req,res)=>{
+    app.get("/data", jwtVerified, async (req,res)=>{
       const email=req.query.email;
       const decodedEmail=req.decoded.email;
       if(decodedEmail===email){
@@ -108,16 +121,26 @@ async function run() {
       res.send(result)
     })
 
-    app.put('/users/admin/:email', async(req,res)=>{
+    app.get('/admin/:email', async(req,res)=>{
       const email=req.params.email;
-      const filter={email:email};
-      const updateDoc = {
-        $set: {Role :'Admin'}
-        ,
-      };
-      const result=await userCollection.updateOne(filter,updateDoc);
-      res.send(result)
+      const user=await userCollection.findOne({email:email});
+      const isAdmin=user.Role==='Admin';
+      res.send({Admin : isAdmin})
     })
+    
+    app.put('/users/admin/:email', jwtVerified,verifyIdAdmin, async(req,res)=>{
+      const email=req.params.email;
+        const filter={email:email};
+        const updateDoc = {
+          $set: {Role :'Admin'}
+        };
+        const result=await userCollection.updateOne(filter,updateDoc);
+        res.send(result)     
+    })
+
+
+
+    
 
     app.put('/users/:email',async(req,res)=>{
       const email=req.params.email;
@@ -133,6 +156,24 @@ async function run() {
       res.send({result,token})
     })
 
+    app.get('/doctors', jwtVerified,verifyIdAdmin, async(req,res)=>{
+      const result=await doctorCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.delete('/doctors/:email',jwtVerified,verifyIdAdmin,async(req,res)=>{
+      const email=req.params.email;
+      const filter={email:email}
+      const result=await doctorCollection.deleteOne(filter);
+      res.send(result)
+    })
+
+
+    app.post('/doctors',jwtVerified,verifyIdAdmin,async(req,res)=>{
+      const doctor=req.body;
+      const result=await doctorCollection.insertOne(doctor);
+      res.send(result)
+    })
 
   } finally {
     // await client.close()
