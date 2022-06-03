@@ -46,6 +46,7 @@ const emailOptions = {
 const EmailClient = nodemailer.createTransport(sibTransport(emailOptions));
 
 function sendEmail(body){
+  console.log(body);
   const {email,date,slot,TreatmentName,name}=body;
   const SenderEmail = {
     from: process.env.USER_EMAIL,
