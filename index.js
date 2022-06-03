@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 const nodemailer = require('nodemailer');
-const sendinBlue = require("nodemailer-sendinblue-transport");
+const sibTransport = require('nodemailer-sendinblue-transport');
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -38,12 +38,12 @@ function jwtVerified(req,res,next){
 }
 const emailOptions = {
   auth: {
-    
     api_key: process.env.EMAIL_SENDER_KEY
   }
 }
 
-const EmailClient = nodemailer.createTransport(sendinBlue(emailOptions));
+
+const EmailClient = nodemailer.createTransport(sibTransport(emailOptions));
 
 function sendEmail(body){
   const {email,date,slot,TreatmentName,name}=body;
@@ -54,7 +54,7 @@ function sendEmail(body){
     text: `Your Appointment ${TreatmentName} is an ${slot} at ${date}`,
     html: 'hello world'
   }
-  EmailClient.sendMail(SenderEmail, function(err, info){
+  EmailClient.sendEmail(SenderEmail, function(err, info){
     if (err ){  
       console.log(err);
     }
