@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
 const nodemailer = require('nodemailer');
-const sendinBlue = require('nodemailer-sendinblue-transport');
+const sendinBlue = require("nodemailer-sendinblue-transport");
 const port = process.env.PORT || 5000;
 
 app.use(cors());
