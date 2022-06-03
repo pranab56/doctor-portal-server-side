@@ -45,8 +45,8 @@ const emailOptions = {
 
 const EmailClient = nodemailer.createTransport(sendinBlue(emailOptions));
 
-function sendEmail(data){
-  const {email,date,slot,TreatmentName,name}=data;
+function sendEmail(body){
+  const {email,date,slot,TreatmentName,name}=body;
   const SenderEmail = {
     from: process.env.USER_EMAIL,
     to: email,
@@ -122,7 +122,7 @@ async function run() {
 
       //    aituku sudu code
       const result = await bookingCollection.insertOne(body);
-      sendEmail({data})
+      sendEmail(body)
       res.send({ success: true, result });
     });
 
