@@ -4,6 +4,8 @@ const cors = require("cors");
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
+const nodemailer = require('nodemailer');
+const sendinBlue = require('nodemailer-sendinblue-transport');
 const port = process.env.PORT || 5000;
 
 app.use(cors());
@@ -32,7 +34,43 @@ function jwtVerified(req,res,next){
   });
  
  
+
 }
+const emailOptions = {
+  auth: {
+    
+    api_key: process.env.EMAIL_SENDER_KEY
+  }
+}
+
+const EmailClient = nodemailer.createTransport(sgTransport(emailOptions));
+
+function sendEmail(data){
+  const {email,date,slot,TreatmentName,name}=data;
+  const SenderEmail = {
+    from: process.env.USER_EMAIL,
+    to: email,
+    subject: `Your Appointment ${TreatmentName} is an ${slot} at ${date}`,
+    text: `Your Appointment ${TreatmentName} is an ${slot} at ${date}`,
+    html: 
+    <div>
+      <h3>`Hello ${name}`</h3>
+      <p>`Your Appointment for ${TreatmentName} confirmed`</p>
+
+    </div>
+  };
+  EmailClient.sendMail(SenderEmail, function(err, info){
+    if (err ){  
+      console.log(err);
+    }
+    else {
+      console.log('Message sent: ' , info);
+    }
+  });
+
+}
+
+
 
 async function run() {
   try {
@@ -86,8 +124,10 @@ async function run() {
       if (exists) {
         return res.send({ success: false, body: exists });
       }
+
       //    aituku sudu code
       const result = await bookingCollection.insertOne(body);
+      sendEmail(data)
       res.send({ success: true, result });
     });
 
