@@ -43,7 +43,7 @@ const emailOptions = {
   }
 }
 
-const EmailClient = nodemailer.createTransport(sgTransport(emailOptions));
+const EmailClient = nodemailer.createTransport(sendinBlue(emailOptions));
 
 function sendEmail(data){
   const {email,date,slot,TreatmentName,name}=data;
@@ -52,13 +52,8 @@ function sendEmail(data){
     to: email,
     subject: `Your Appointment ${TreatmentName} is an ${slot} at ${date}`,
     text: `Your Appointment ${TreatmentName} is an ${slot} at ${date}`,
-    html: 
-    <div>
-      <h3>`Hello ${name}`</h3>
-      <p>`Your Appointment for ${TreatmentName} confirmed`</p>
-
-    </div>
-  };
+    html: 'hello world'
+  }
   EmailClient.sendMail(SenderEmail, function(err, info){
     if (err ){  
       console.log(err);
@@ -153,7 +148,7 @@ async function run() {
 
       res.send(services);
     });
-// -------------------------------------------------------------------------
+// --------------------------------------------------------------------------
 // -------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
     app.get('/users', async(req,res)=>{
