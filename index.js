@@ -122,6 +122,7 @@ async function run() {
 
       //    aituku sudu code
       const result = await bookingCollection.insertOne(body);
+      console.log('sending email');
       sendEmail(body)
       res.send({ success: true, result });
     });
